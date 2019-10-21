@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
+
+import { MessagesService } from './core';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +10,11 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
 
+  constructor(
+    private router: Router,
+    public messagesService: MessagesService
+  ) { }
+
   onActivate($event: any, routerOutlet: RouterOutlet): void {
     console.log('Activated component:', $event, routerOutlet);
   }
@@ -15,4 +22,10 @@ export class AppComponent {
   onDeactivate($event: any, routerOutlet: RouterOutlet): void {
     console.log('Deactivate component:', $event, routerOutlet);
   }
+
+  onDisplayMessages(): void {
+    this.router.navigate([{ outlets: { messages: ['messages'] } }]);
+    this.messagesService.isDisplayed = true;
+  }
+
 }
