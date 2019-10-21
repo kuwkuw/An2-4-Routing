@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 
 import { TaskModel } from './../../models/task.model';
@@ -14,13 +14,14 @@ export class TaskFormComponent implements OnInit {
   task: TaskModel;
 
   constructor(
+    private router: Router,
     private route: ActivatedRoute,
     private taskArrayService: TaskArrayService) { }
 
   ngOnInit(): void {
     this.task = new TaskModel();
 
-// it is not necessary to save subscription to route.paramMap
+    // it is not necessary to save subscription to route.paramMap
     // when router destroys this component, it handles subscriptions automatically
     const observer = {
       next: (task: TaskModel) => (this.task = { ...task }),
@@ -41,8 +42,11 @@ export class TaskFormComponent implements OnInit {
     } else {
       this.taskArrayService.createTask(task);
     }
+    this.onGoBack();
   }
 
-  onGoBack(): void { }
+  onGoBack(): void {
+    this.router.navigate(['/home']);
+  }
 
 }
