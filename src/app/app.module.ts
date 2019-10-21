@@ -19,8 +19,8 @@ import { UsersModule } from './users/users.module';
     FormsModule,
     LayoutModule,
     TasksModule,
+    UsersModule,
     AppRoutingModule,
-    UsersModule
   ],
   providers: [
   ],
