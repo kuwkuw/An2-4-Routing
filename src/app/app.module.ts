@@ -5,10 +5,11 @@ import { Router } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
 import { LayoutModule } from './layout/layout.module';
-
-import { AppComponent } from './app.component';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
+import { AdminModule } from './admin/admin.module';
+
+import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { UsersModule } from './users/users.module';
     LayoutModule,
     TasksModule,
     UsersModule,
+    AdminModule,
     AppRoutingModule,
   ],
   providers: [
