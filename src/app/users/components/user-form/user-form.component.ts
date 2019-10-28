@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-
-// rxjs
-import { Subscription } from 'rxjs';
+import { Component, OnInit} from '@angular/core';
+import { ActivatedRoute, Router, UrlTree } from '@angular/router';
+import { Observable } from 'rxjs';
+import { pluck } from 'rxjs/operators';
+import { DialogService, CanComponentDeactivate } from './../../../core';
 
 import { UserModel } from './../../models/user.model';
 import { UserArrayService } from './../../services/user-array.service';
@@ -11,35 +11,22 @@ import { UserArrayService } from './../../services/user-array.service';
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css'],
 })
-export class UserFormComponent implements OnInit, OnDestroy {
+export class UserFormComponent implements OnInit, CanComponentDeactivate {
   user: UserModel;
   originalUser: UserModel;
-
-  private sub: Subscription;
 
   constructor(
     private userArrayService: UserArrayService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private dialogService: DialogService
   ) { }
 
   ngOnInit(): void {
-    this.user = new UserModel(null, '', '');
-
-    // we should recreate component because this code runs only once
-    const id = +this.route.snapshot.paramMap.get('userID');
-    const observer = {
-      next: (user: UserModel) => {
-        this.user = { ...user };
-        this.originalUser = { ...user };
-      },
-      error: (err: any) => console.log(err)
-    };
-    this.sub = this.userArrayService.getUser(id).subscribe(observer);
-  }
-
-  ngOnDestroy() {
-    this.sub.unsubscribe();
+    this.route.data.pipe(pluck('user')).subscribe((user: UserModel) => {
+      this.user = { ...user };
+      this.originalUser = { ...user };
+    });
   }
 
   onSaveUser() {
@@ -58,4 +45,26 @@ export class UserFormComponent implements OnInit, OnDestroy {
   onGoBack() {
     this.router.navigate(['./../../'], { relativeTo: this.route });
   }
+
+  canDeactivate():
+    | Observable<boolean | UrlTree>
+    | Promise<boolean | UrlTree>
+    | boolean
+    | UrlTree {
+    const flags = Object.keys(this.originalUser).map(key => {
+      if (this.originalUser[key] === this.user[key]) {
+        return true;
+      }
+      return false;
+    });
+
+    if (flags.every(el => el)) {
+      return true;
+    }
+
+    // Otherwise ask the user with the dialog service and return its
+    // promise which resolves to true or false when the user decides
+    return this.dialogService.confirm('Discard changes?');
+  }
+
 }

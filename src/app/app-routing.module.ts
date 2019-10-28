@@ -1,12 +1,21 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { Routes, RouterModule, ExtraOptions } from '@angular/router';
+
+import { AuthGuard, CustomPreloadingStrategyService } from './core';
 
 import { AboutComponent, MessagesComponent, LoginComponent, PathNotFoundComponent } from './layout';
+
+const extraOptions: ExtraOptions = {
+    preloadingStrategy: CustomPreloadingStrategyService,
+    enableTracing: true // Makes the router log all its internal events to the console.
+};
+
 
 const routes: Routes = [
     {
         path: 'about',
-        component: AboutComponent
+        component: AboutComponent,
+        data: { title: 'About' }
     },
     {
         path: '',
@@ -15,7 +24,8 @@ const routes: Routes = [
     },
     {
         path: 'login',
-        component: LoginComponent
+        component: LoginComponent,
+        data: { title: 'Login' }
     },
     {
         path: 'messages',
@@ -23,12 +33,25 @@ const routes: Routes = [
         outlet: 'messages'
     },
     {
+        path: 'admin',
+        canLoad: [AuthGuard],
+        loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),
+        data: { title: 'Admin' }
+    },
+    {
+        path: 'users',
+        loadChildren: () => import('./users/users.module').then(m => m.UsersModule),
+        data: { preload: true, title: 'Users' }
+    },
+    {
         path: '**',
-        component: PathNotFoundComponent
-    }];
+        component: PathNotFoundComponent,
+        data: { title: 'Page Not Found' }
+    }
+];
 @NgModule({
     imports: [
-        RouterModule.forRoot(routes)
+        RouterModule.forRoot(routes, extraOptions)
     ],
     exports: [RouterModule]
 })
